@@ -487,6 +487,10 @@
                 font-size: 11px;
             }
 
+            .product-image img {
+                border-radius: 8px;
+            }
+
             .product-name {
                 font-size: 0.9em;
                 min-height: 35px;
@@ -575,6 +579,10 @@
                 height: 120px;
             }
 
+            .product-image img {
+                border-radius: 8px;
+            }
+
             .product-name {
                 font-size: 0.85em;
             }
@@ -622,12 +630,24 @@
                     <button class="close-btn" onclick="toggleCart()">×</button>
                 </div>
                 <div id="cartItems"></div>
+                <div id="paymentSection"></div>
                 <div class="cart-summary" id="cartSummary"></div>
             </div>
+        </div>
+
+        <!-- Image Zoom Modal -->
+        <div class="zoom-modal" id="zoomModal" onclick="closeZoom()">
+            <span class="zoom-close" onclick="closeZoom()">×</span>
+            <img id="zoomedImage" src="" alt="Zoomed Product">
         </div>
     </div>
 
     <script>
+        // GitHub Repository URL for images
+        const IMAGE_BASE_URL = 'https://raw.githubusercontent.com/Amilaeduhelp/Trendora1212/main/';
+        
+        let selectedPaymentMethod = 'cod'; // Default payment method
+        
         const products = [
             {id: 1, name: "අලංකාර වතුර බෝතලය Premium", price: 1850, image: "item1.jpg"},
             {id: 2, name: "Designer අත් බෑගය", price: 2150, image: "item2.jpg"},
@@ -688,7 +708,11 @@
             grid.innerHTML = products.map(product => `
                 <div class="product-card">
                     <div class="product-image">
-                        <span>${product.image}</span>
+                        <img src="${IMAGE_BASE_URL}${product.image}" 
+                             alt="${product.name}"
+                             onclick="zoomImage('${IMAGE_BASE_URL}${product.image}', '${product.name}')"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="placeholder">${product.image}</span>
                     </div>
                     <div class="product-name">${product.name}</div>
                     <div class="product-price">රු. ${product.price.toFixed(2)}</div>
@@ -697,6 +721,18 @@
                     </button>
                 </div>
             `).join('');
+        }
+
+        function zoomImage(src, alt) {
+            const modal = document.getElementById('zoomModal');
+            const img = document.getElementById('zoomedImage');
+            img.src = src;
+            img.alt = alt;
+            modal.style.display = 'flex';
+        }
+
+        function closeZoom() {
+            document.getElementById('zoomModal').style.display = 'none';
         }
 
         function addToCart(productId) {
