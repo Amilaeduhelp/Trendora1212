@@ -21,9 +21,6 @@
         .product-image img:hover {transform: scale(1.05);}
         .product-name {font-size: 1em; font-weight: bold; color: #333; margin-bottom: 10px; min-height: 40px;}
         .product-price {font-size: 1.3em; color: #667eea; font-weight: bold; margin-bottom: 15px;}
-        .heart-btn {background: transparent; border: 2px solid #ff4757; color: #ff4757; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 1.1em; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 10px; font-weight: bold;}
-        .heart-btn:hover {background: #ff4757; color: white; transform: scale(1.05);}
-        .heart-btn:active {transform: scale(0.95);}
         .share-btn {background: #667eea; color: white; border: none; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9em; transition: all 0.3s; margin-top: 10px; font-weight: bold;}
         .share-btn:hover {background: #764ba2; transform: translateY(-2px);}
         .add-to-cart-btn {background: #667eea; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; margin-top: 10px; font-size: 0.95em;}
@@ -80,7 +77,7 @@
             .products-grid {grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;}
             .product-card {padding: 15px;}
             .product-image {height: 140px;}
-            .heart-btn, .share-btn, .add-to-cart-btn {padding: 8px; font-size: 0.85em;}
+            .share-btn, .add-to-cart-btn {padding: 8px; font-size: 0.85em;}
             .toast {bottom: 20px; right: 20px; left: 20px; text-align: center;}
         }
     </style>
@@ -120,12 +117,12 @@
         </div>
     </div>
     <script>
-        const SUPABASE_URL='https://uqgzlaxsnknheoerbfus.supabase.co';
-        const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxZ3psYXhzbmtuaGVvZXJiZnVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4MDQzMTEsImV4cCI6MjA2MDM4MDMxMX0.O5dNUizqZ5kfwTs0mHLEorqOAqjZFjWakp2Q484MKEk';
-        const IMAGE_BASE_URL='https://raw.githubusercontent.com/Amilaeduhelp/Trendora1212/main/';
-        let selectedPaymentMethod='cod',productLikes={},cart=[];
-        const products=[
-            {id: 1, name: "Item No-01", price:  1200, image: "item1.jpg"},
+        const IMAGE_BASE_URL = 'https://raw.githubusercontent.com/Amilaeduhelp/Trendora1212/main/';
+        let selectedPaymentMethod = 'cod';
+        let cart = [];
+        
+        const products = [
+            {id: 1, name: "Item No-01", price: 1200, image: "item1.jpg"},
             {id: 2, name: "Item No-02", price: 1800, image: "item2.jpg"},
             {id: 3, name: "Item No-03", price: 1500, image: "item3.jpg"},
             {id: 4, name: "Item No-04", price: 1500, image: "item4.jpg"},
@@ -161,27 +158,283 @@
             {id: 34, name: "Item No-34", price: 2800, image: "item34.jpg"},
             {id: 35, name: "Item No-35", price: 2200, image: "item35.jpg"}   
         ];
-        async function supabaseRequest(e,t="GET",a=null){const n={method:t,headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json"}};return a&&(n.body=JSON.stringify(a)),await(await fetch(`${SUPABASE_URL}/rest/v1/${e}`,n)).json()}
-        async function loadLikes(){try{const e=await supabaseRequest("trendora1212?select=*");productLikes={},e.forEach(e=>{productLikes[e.id]=e.like||0}),displayProducts()}catch(e){console.error("Error:",e),displayProducts()}}
-        async function updateLike(e){try{const t=productLikes[e]||0,a=t+1,n=await supabaseRequest(`trendora1212?id=eq.${e}&select=*`);n&&n.length>0?await supabaseRequest(`trendora1212?id=eq.${e}`,"PATCH",{like:a}):await supabaseRequest("trendora1212","POST",{id:e,like:a}),productLikes[e]=a,displayProducts(),showToast("❤️ ස්තූතියි!")}catch(e){console.error("Error:",e),showToast("⚠️ දෝෂයක් සිදුවිය")}}
-        function showToast(e){const t=document.createElement("div");t.className="toast",t.textContent=e,document.body.appendChild(t),setTimeout(()=>{t.remove()},2e3)}
-        function shareProduct(e){const t=`${window.location.origin}${window.location.pathname}?product=${e.id}`,a=`🛍️ ${e.name}\n💰 රු. ${e.price.toFixed(2)}\n\n🔗 ${t}`;navigator.share?navigator.share({title:e.name,text:a,url:t}).catch(()=>{copyToClipboard(t)}):copyToClipboard(t)}
-        function copyToClipboard(e){const t=document.createElement("textarea");t.value=e,t.style.position="fixed",t.style.opacity="0",document.body.appendChild(t),t.select(),document.execCommand("copy"),document.body.removeChild(t),showToast("🔗 Link copied!")}
-        function displayProducts(){document.getElementById("productsGrid").innerHTML=products.map(e=>{const t=productLikes[e.id]||0;return`<div class="product-card"><div class="product-image"><img src="${IMAGE_BASE_URL}${e.image}" alt="${e.name}" onclick="zoomImage('${IMAGE_BASE_URL}${e.image}','${e.name}')"></div><div class="product-name">${e.name}</div><div class="product-price">රු. ${e.price.toFixed(2)}</div><button class="heart-btn" onclick="updateLike(${e.id})">❤️ <span>${t}</span></button><button class="share-btn" onclick='shareProduct(${JSON.stringify(e)})'>🔗 Share කරන්න</button><button class="add-to-cart-btn" onclick="addToCart(${e.id})">🛒 Add to Cart</button></div>`}).join("")}
-        function zoomImage(e,t){document.getElementById("zoomModal").style.display="flex";const a=document.getElementById("zoomedImage");a.src=e,a.alt=t}
-        function closeZoom(){document.getElementById("zoomModal").style.display="none"}
-        function addToCart(e){const t=products.find(t=>t.id===e),a=cart.find(t=>t.id===e);a?a.quantity++:cart.push({...t,quantity:1}),updateCart()}
-        function updateQuantity(e,t){const a=cart.find(t=>t.id===e);a&&(a.quantity+=t,a.quantity<=0?removeFromCart(e):updateCart())}
-        function removeFromCart(e){cart=cart.filter(t=>t.id!==e),updateCart()}
-        function updateCart(){document.getElementById("cartCount").textContent=cart.reduce((e,t)=>e+t.quantity,0),displayCart()}
-        function displayCart(){const e=document.getElementById("cartItems"),t=document.getElementById("paymentSection"),a=document.getElementById("cartSummary");if(0===cart.length)return e.innerHTML='<div class="empty-cart">🛒 Cart එක හිස්ය</div>',t.innerHTML="",void(a.innerHTML="");e.innerHTML=cart.map(e=>`<div class="cart-item"><div class="cart-item-info"><strong>${e.name}</strong><br><span style="color:#667eea;">රු. ${e.price.toFixed(2)}</span></div><div class="quantity-controls"><button class="qty-btn" onclick="updateQuantity(${e.id},-1)">-</button><span><strong>${e.quantity}</strong></span><button class="qty-btn" onclick="updateQuantity(${e.id},1)">+</button></div><div><strong>රු. ${(e.price*e.quantity).toFixed(2)}</strong></div><button class="remove-btn" onclick="removeFromCart(${e.id})">🗑️</button></div>`).join(""),t.innerHTML=`<div class="payment-section"><div class="payment-title">💳 ගෙවීමේ ක්‍රමය තෝරන්න</div><div class="payment-options"><div class="payment-option ${"cod"===selectedPaymentMethod?"selected":""}" onclick="selectPayment('cod')"><input type="radio" name="payment" value="cod" ${"cod"===selectedPaymentMethod?"checked":""}><div class="payment-label"><strong>🚚 Cash on Delivery (COD)</strong><small>ගෙවල් හරහා ගෙවීම - <span class="delivery-charge">Delivery: රු. 400.00</span></small></div></div><div class="payment-option ${"bank"===selectedPaymentMethod?"selected":""}" onclick="selectPayment('bank')"><input type="radio" name="payment" value="bank" ${"bank"===selectedPaymentMethod?"checked":""}><div class="payment-label"><strong>🏦 Bank Transfer</strong><small>බැංකු මාරු - <span class="delivery-charge">Service: රු. 375.00</span></small></div></div></div></div>`;const n=cart.reduce((e,t)=>e+t.price*t.quantity,0),d=.05*n,r="cod"===selectedPaymentMethod?400:375,o="cod"===selectedPaymentMethod?"COD Delivery Charge":"Bank Transfer Service";a.innerHTML=`<div class="summary-row"><span>Subtotal:</span><span>රු. ${n.toFixed(2)}</span></div><div class="summary-row"><span>Discount (5%):</span><span style="color:#10ac84;">- රු. ${d.toFixed(2)}</span></div><div class="summary-row"><span>${o}:</span><span style="color:#ff6b6b;">+ රු. ${r.toFixed(2)}</span></div><div class="summary-row total"><span>Total:</span><span>රු. ${(n-d+r).toFixed(2)}</span></div><button class="whatsapp-btn" onclick="openDetailsModal()">📱 Copy & Send via WhatsApp</button>`}
-        function selectPayment(e){selectedPaymentMethod=e,displayCart()}
-        function toggleCart(){const e=document.getElementById("cartModal");e.style.display="flex"===e.style.display?"none":"flex"}
-        function openDetailsModal(){0===cart.length?alert("Cart එක හිස්ය!"):document.getElementById("detailsModal").style.display="flex"}
-        function closeDetailsModal(){document.getElementById("detailsModal").style.display="none",document.getElementById("customerForm").reset()}
-        function submitCustomerDetails(e){e.preventDefault();const t=document.getElementById("customerName").value.trim(),a=document.getElementById("customerPhone").value.trim(),n=document.getElementById("customerAddress").value.trim();t&&a&&n?(sendViaWhatsApp(t,a,n),closeDetailsModal()):alert("කරුණාකර සියලුම තොරතුරු පුරවන්න!")}
-        function sendViaWhatsApp(e,t,a){if(0===cart.length)return void alert("Cart එක හිස්ය!");const n=cart.reduce((e,t)=>e+t.price*t.quantity,0),d=.05*n,r="cod"===selectedPaymentMethod?400:375,o="cod"===selectedPaymentMethod?"Cash on Delivery (COD)":"Bank Transfer",c="cod"===selectedPaymentMethod?"COD Delivery Charge":"Bank Transfer Service";let i=`🛍️ *TRENDORA1212 - Order Bill*\n\n━━━━━━━━━━━━━━━━━━━━\n\n*👤 CUSTOMER DETAILS:*\n\nName: ${e}\nPhone: ${t}\nAddress: ${a}\n\n━━━━━━━━━━━━━━━━━━━━\n\n*📦 ORDERED ITEMS:*\n\n`;cart.forEach(e=>{i+=`• *${e.name}*\n  Qty: ${e.quantity} × රු.${e.price.toFixed(2)}\n  Total: රු.${(e.price*e.quantity).toFixed(2)}\n\n`}),i+=`━━━━━━━━━━━━━━━━━━━━\n\n*💰 BILL SUMMARY:*\n\nSubtotal: රු.${n.toFixed(2)}\nDiscount (5%): -රු.${d.toFixed(2)}\n${c}: +රු.${r.toFixed(2)}\n\n*Grand Total: රු.${(n-d+r).toFixed(2)}*\n\n━━━━━━━━━━━━━━━━━━━━\n\n*💳 Payment Method:* ${o}\n\n━━━━━━━━━━━━━━━━━━━━\n\nThank you for shopping with us! 🙏\n*TRENDORA1212*`;window.open(`https://wa.me/94705572284?text=${encodeURIComponent(i)}`,"_blank")}
-        document.getElementById("cartModal").addEventListener("click",function(e){e.target===this&&toggleCart()}),document.getElementById("detailsModal").addEventListener("click",function(e){e.target===this&&closeDetailsModal()}),loadLikes();
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function shareProduct(product) {
+            const url = `${window.location.origin}${window.location.pathname}?product=${product.id}`;
+            const text = `🛍️ ${product.name}\n💰 රු. ${product.price.toFixed(2)}\n\n🔗 ${url}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: product.name,
+                    text: text,
+                    url: url
+                }).catch(() => copyToClipboard(url));
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('🔗 Link copied!');
+        }
+
+        function displayProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${IMAGE_BASE_URL}${product.image}" 
+                             alt="${product.name}" 
+                             onclick="zoomImage('${IMAGE_BASE_URL}${product.image}', '${product.name}')">
+                    </div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">රු. ${product.price.toFixed(2)}</div>
+                    <button class="share-btn" onclick='shareProduct(${JSON.stringify(product)})'>🔗 Share කරන්න</button>
+                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})">🛒 Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function zoomImage(src, alt) {
+            document.getElementById('zoomModal').style.display = 'flex';
+            const img = document.getElementById('zoomedImage');
+            img.src = src;
+            img.alt = alt;
+        }
+
+        function closeZoom() {
+            document.getElementById('zoomModal').style.display = 'none';
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({...product, quantity: 1});
+            }
+            
+            updateCart();
+            showToast('✅ Cart එකට එකතු කරන ලදී!');
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+            showToast('🗑️ Item එක ඉවත් කරන ලදී!');
+        }
+
+        function updateCart() {
+            const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = cartCount;
+            displayCart();
+        }
+
+        function displayCart() {
+            const cartItems = document.getElementById('cartItems');
+            const paymentSection = document.getElementById('paymentSection');
+            const cartSummary = document.getElementById('cartSummary');
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="empty-cart">🛒 Cart එක හිස්ය</div>';
+                paymentSection.innerHTML = '';
+                cartSummary.innerHTML = '';
+                return;
+            }
+
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <strong>${item.name}</strong><br>
+                        <span style="color:#667eea;">රු. ${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                        <span><strong>${item.quantity}</strong></span>
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                    </div>
+                    <div><strong>රු. ${(item.price * item.quantity).toFixed(2)}</strong></div>
+                    <button class="remove-btn" onclick="removeFromCart(${item.id})">🗑️</button>
+                </div>
+            `).join('');
+
+            paymentSection.innerHTML = `
+                <div class="payment-section">
+                    <div class="payment-title">💳 ගෙවීමේ ක්‍රමය තෝරන්න</div>
+                    <div class="payment-options">
+                        <div class="payment-option ${selectedPaymentMethod === 'cod' ? 'selected' : ''}" onclick="selectPayment('cod')">
+                            <input type="radio" name="payment" value="cod" ${selectedPaymentMethod === 'cod' ? 'checked' : ''}>
+                            <div class="payment-label">
+                                <strong>🚚 Cash on Delivery (COD)</strong>
+                                <small>ගෙවල් හරහා ගෙවීම - <span class="delivery-charge">Delivery: රු. 400.00</span></small>
+                            </div>
+                        </div>
+                        <div class="payment-option ${selectedPaymentMethod === 'bank' ? 'selected' : ''}" onclick="selectPayment('bank')">
+                            <input type="radio" name="payment" value="bank" ${selectedPaymentMethod === 'bank' ? 'checked' : ''}>
+                            <div class="payment-label">
+                                <strong>🏦 Bank Transfer</strong>
+                                <small>බැංකු මාරු - <span class="delivery-charge">Service: රු. 375.00</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = subtotal * 0.05;
+            const serviceCharge = selectedPaymentMethod === 'cod' ? 400 : 375;
+            const serviceLabel = selectedPaymentMethod === 'cod' ? 'COD Delivery Charge' : 'Bank Transfer Service';
+            const total = subtotal - discount + serviceCharge;
+
+            cartSummary.innerHTML = `
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>රු. ${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Discount (5%):</span>
+                    <span style="color:#10ac84;">- රු. ${discount.toFixed(2)}</span>
+                </div>
+                <div class="summary-row">
+                    <span>${serviceLabel}:</span>
+                    <span style="color:#ff6b6b;">+ රු. ${serviceCharge.toFixed(2)}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span>රු. ${total.toFixed(2)}</span>
+                </div>
+                <button class="whatsapp-btn" onclick="openDetailsModal()">📱 Copy & Send via WhatsApp</button>
+            `;
+        }
+
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            displayCart();
+        }
+
+        function toggleCart() {
+            const modal = document.getElementById('cartModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function openDetailsModal() {
+            if (cart.length === 0) {
+                alert('Cart එක හිස්ය!');
+                return;
+            }
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+            document.getElementById('customerForm').reset();
+        }
+
+        function submitCustomerDetails(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+
+            if (name && phone && address) {
+                sendViaWhatsApp(name, phone, address);
+                closeDetailsModal();
+            } else {
+                alert('කරුණාකර සියලුම තොරතුරු පුරවන්න!');
+            }
+        }
+
+        function sendViaWhatsApp(name, phone, address) {
+            if (cart.length === 0) {
+                alert('Cart එක හිස්ය!');
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const discount = subtotal * 0.05;
+            const serviceCharge = selectedPaymentMethod === 'cod' ? 400 : 375;
+            const paymentMethod = selectedPaymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Bank Transfer';
+            const serviceLabel = selectedPaymentMethod === 'cod' ? 'COD Delivery Charge' : 'Bank Transfer Service';
+            const total = subtotal - discount + serviceCharge;
+
+            let message = `🛍️ *TRENDORA1212 - Order Bill*\n\n`;
+            message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `*👤 CUSTOMER DETAILS:*\n\n`;
+            message += `Name: ${name}\n`;
+            message += `Phone: ${phone}\n`;
+            message += `Address: ${address}\n\n`;
+            message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `*📦 ORDERED ITEMS:*\n\n`;
+
+            cart.forEach(item => {
+                message += `• *${item.name}*\n`;
+                message += `  Qty: ${item.quantity} × රු.${item.price.toFixed(2)}\n`;
+                message += `  Total: රු.${(item.price * item.quantity).toFixed(2)}\n\n`;
+            });
+
+            message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `*💰 BILL SUMMARY:*\n\n`;
+            message += `Subtotal: රු.${subtotal.toFixed(2)}\n`;
+            message += `Discount (5%): -රු.${discount.toFixed(2)}\n`;
+            message += `${serviceLabel}: +රු.${serviceCharge.toFixed(2)}\n\n`;
+            message += `*Grand Total: රු.${total.toFixed(2)}*\n\n`;
+            message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `*💳 Payment Method:* ${paymentMethod}\n\n`;
+            message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+            message += `Thank you for shopping with us! 🙏\n`;
+            message += `*TRENDORA1212*`;
+
+            const whatsappURL = `https://wa.me/94705572284?text=${encodeURIComponent(message)}`;
+            window.open(whatsappURL, '_blank');
+            showToast('✅ WhatsApp එකට යොමු කරමින්...');
+        }
+
+        // Event listeners
+        document.getElementById('cartModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleCart();
+            }
+        });
+
+        document.getElementById('detailsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailsModal();
+            }
+        });
+
+        // Initialize
+        displayProducts();
     </script>
 </body>
 </html>
