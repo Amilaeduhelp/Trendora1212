@@ -86,30 +86,42 @@
     <div class="container">
         <header>
             <div class="logo">🛍️ TRENDORA1212</div>
-            <div class="cart-icon" onclick="toggleCart()">🛒 Cart <span class="cart-count" id="cartCount">0</span></div>
+            <div class="cart-icon" id="cartIcon">🛒 Cart <span class="cart-count" id="cartCount">0</span></div>
         </header>
         <div class="products-grid" id="productsGrid"></div>
         <div class="cart-modal" id="cartModal">
             <div class="cart-content">
-                <div class="cart-header"><h2>🛒 Shopping Cart</h2><button class="close-btn" onclick="toggleCart()">×</button></div>
+                <div class="cart-header">
+                    <h2>🛒 Shopping Cart</h2>
+                    <button class="close-btn" id="closeCartBtn">×</button>
+                </div>
                 <div id="cartItems"></div>
                 <div id="paymentSection"></div>
                 <div class="cart-summary" id="cartSummary"></div>
             </div>
         </div>
-        <div class="zoom-modal" id="zoomModal" onclick="closeZoom()">
-            <span class="zoom-close" onclick="closeZoom()">×</span>
+        <div class="zoom-modal" id="zoomModal">
+            <span class="zoom-close" id="zoomClose">×</span>
             <img id="zoomedImage" src="" alt="Zoomed Product">
         </div>
         <div class="details-modal" id="detailsModal">
             <div class="details-content">
                 <div class="details-header">📝 ඔබේ විස්තර ඇතුළත් කරන්න</div>
-                <form id="customerForm" onsubmit="submitCustomerDetails(event)">
-                    <div class="form-group"><label for="customerName">නම *</label><input type="text" id="customerName" required placeholder="ඔබේ සම්පූර්ණ නම"></div>
-                    <div class="form-group"><label for="customerPhone">දුරකථන අංකය *</label><input type="tel" id="customerPhone" required placeholder="07XXXXXXXX"></div>
-                    <div class="form-group"><label for="customerAddress">ලිපිනය *</label><textarea id="customerAddress" required placeholder="ඔබේ සම්පූර්ණ ලිපිනය"></textarea></div>
+                <form id="customerForm">
+                    <div class="form-group">
+                        <label for="customerName">නම *</label>
+                        <input type="text" id="customerName" required placeholder="ඔබේ සම්පූර්ණ නම">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">දුරකථන අංකය *</label>
+                        <input type="tel" id="customerPhone" required placeholder="07XXXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">ලිපිනය *</label>
+                        <textarea id="customerAddress" required placeholder="ඔබේ සම්පූර්ණ ලිපිනය"></textarea>
+                    </div>
                     <div class="form-buttons">
-                        <button type="button" class="form-btn cancel" onclick="closeDetailsModal()">අවලංගු කරන්න</button>
+                        <button type="button" class="form-btn cancel" id="cancelFormBtn">අවලංගු කරන්න</button>
                         <button type="submit" class="form-btn submit">📱 WhatsApp යවන්න</button>
                     </div>
                 </form>
@@ -201,14 +213,38 @@
                     <div class="product-image">
                         <img src="${IMAGE_BASE_URL}${product.image}" 
                              alt="${product.name}" 
-                             onclick="zoomImage('${IMAGE_BASE_URL}${product.image}', '${product.name}')">
+                             data-product-id="${product.id}"
+                             class="product-img">
                     </div>
                     <div class="product-name">${product.name}</div>
                     <div class="product-price">රු. ${product.price.toFixed(2)}</div>
-                    <button class="share-btn" onclick='shareProduct(${JSON.stringify(product)})'>🔗 Share කරන්න</button>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})">🛒 Add to Cart</button>
+                    <button class="share-btn" data-product='${JSON.stringify(product)}'>🔗 Share කරන්න</button>
+                    <button class="add-to-cart-btn" data-product-id="${product.id}">🛒 Add to Cart</button>
                 </div>
             `).join('');
+
+            // Add event listeners to all buttons
+            document.querySelectorAll('.product-img').forEach(img => {
+                img.addEventListener('click', function() {
+                    const productId = parseInt(this.dataset.productId);
+                    const product = products.find(p => p.id === productId);
+                    zoomImage(IMAGE_BASE_URL + product.image, product.name);
+                });
+            });
+
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const product = JSON.parse(this.dataset.product);
+                    shareProduct(product);
+                });
+            });
+
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.dataset.productId);
+                    addToCart(productId);
+                });
+            });
         }
 
         function zoomImage(src, alt) {
@@ -279,36 +315,62 @@
                         <span style="color:#667eea;">රු. ${item.price.toFixed(2)}</span>
                     </div>
                     <div class="quantity-controls">
-                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                        <button class="qty-btn qty-decrease" data-product-id="${item.id}">-</button>
                         <span><strong>${item.quantity}</strong></span>
-                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                        <button class="qty-btn qty-increase" data-product-id="${item.id}">+</button>
                     </div>
                     <div><strong>රු. ${(item.price * item.quantity).toFixed(2)}</strong></div>
-                    <button class="remove-btn" onclick="removeFromCart(${item.id})">🗑️</button>
+                    <button class="remove-btn" data-product-id="${item.id}">🗑️</button>
                 </div>
             `).join('');
+
+            // Add event listeners for cart buttons
+            document.querySelectorAll('.qty-decrease').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    updateQuantity(parseInt(this.dataset.productId), -1);
+                });
+            });
+
+            document.querySelectorAll('.qty-increase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    updateQuantity(parseInt(this.dataset.productId), 1);
+                });
+            });
+
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    removeFromCart(parseInt(this.dataset.productId));
+                });
+            });
 
             paymentSection.innerHTML = `
                 <div class="payment-section">
                     <div class="payment-title">💳 ගෙවීමේ ක්‍රමය තෝරන්න</div>
                     <div class="payment-options">
-                        <div class="payment-option ${selectedPaymentMethod === 'cod' ? 'selected' : ''}" onclick="selectPayment('cod')">
+                        <div class="payment-option ${selectedPaymentMethod === 'cod' ? 'selected' : ''}" data-payment="cod">
                             <input type="radio" name="payment" value="cod" ${selectedPaymentMethod === 'cod' ? 'checked' : ''}>
                             <div class="payment-label">
                                 <strong>🚚 Cash on Delivery (COD)</strong>
-                                <small>ගෙවල් හරහා ගෙවීම - <span class="delivery-charge">Delivery: රු. 400.00</span></small>
+                                <small>භාණ්ඩ ලැබුණු පසු ගෙවීම - <span class="delivery-charge">Delivery: රු. 400.00</span></small>
                             </div>
                         </div>
-                        <div class="payment-option ${selectedPaymentMethod === 'bank' ? 'selected' : ''}" onclick="selectPayment('bank')">
+                        <div class="payment-option ${selectedPaymentMethod === 'bank' ? 'selected' : ''}" data-payment="bank">
                             <input type="radio" name="payment" value="bank" ${selectedPaymentMethod === 'bank' ? 'checked' : ''}>
                             <div class="payment-label">
                                 <strong>🏦 Bank Transfer</strong>
-                                <small>බැංකු මාරු - <span class="delivery-charge">Service: රු. 375.00</span></small>
+                                <small>බැංකු ගිණුමෙන් ගෙවීම- <span class="delivery-charge">Service: රු. 375.00</span></small>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
+
+            // Add event listeners for payment options
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectPayment(this.dataset.payment);
+                });
+            });
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const discount = subtotal * 0.05;
@@ -333,8 +395,11 @@
                     <span>Total:</span>
                     <span>රු. ${total.toFixed(2)}</span>
                 </div>
-                <button class="whatsapp-btn" onclick="openDetailsModal()">📱 Copy & Send via WhatsApp</button>
+                <button class="whatsapp-btn" id="openDetailsBtn">📱 Copy & Send via WhatsApp</button>
             `;
+
+            // Add event listener for WhatsApp button
+            document.getElementById('openDetailsBtn').addEventListener('click', openDetailsModal);
         }
 
         function selectPayment(method) {
@@ -358,21 +423,6 @@
         function closeDetailsModal() {
             document.getElementById('detailsModal').style.display = 'none';
             document.getElementById('customerForm').reset();
-        }
-
-        function submitCustomerDetails(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const address = document.getElementById('customerAddress').value.trim();
-
-            if (name && phone && address) {
-                sendViaWhatsApp(name, phone, address);
-                closeDetailsModal();
-            } else {
-                alert('කරුණාකර සියලුම තොරතුරු පුරවන්න!');
-            }
         }
 
         function sendViaWhatsApp(name, phone, address) {
@@ -421,6 +471,17 @@
         }
 
         // Event listeners
+        document.getElementById('cartIcon').addEventListener('click', toggleCart);
+        document.getElementById('closeCartBtn').addEventListener('click', toggleCart);
+        
+        document.getElementById('zoomModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeZoom();
+            }
+        });
+        
+        document.getElementById('zoomClose').addEventListener('click', closeZoom);
+
         document.getElementById('cartModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 toggleCart();
@@ -430,6 +491,23 @@
         document.getElementById('detailsModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDetailsModal();
+            }
+        });
+
+        document.getElementById('cancelFormBtn').addEventListener('click', closeDetailsModal);
+
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const address = document.getElementById('customerAddress').value.trim();
+
+            if (name && phone && address) {
+                sendViaWhatsApp(name, phone, address);
+                closeDetailsModal();
+            } else {
+                alert('කරුණාකර සියලුම තොරතුරු පුරවන්න!');
             }
         });
 
