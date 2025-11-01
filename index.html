@@ -121,6 +121,12 @@
             height: 100%;
             object-fit: cover;
             border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .product-image img:hover {
+            transform: scale(1.05);
         }
 
         .product-image .placeholder {
@@ -131,6 +137,123 @@
 
         .product-image img.error + .placeholder {
             display: flex;
+        }
+
+        /* Image Zoom Modal */
+        .zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .zoom-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(255,255,255,0.3);
+        }
+
+        .zoom-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .zoom-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        /* Payment Method Selection */
+        .payment-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .payment-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .payment-option:hover {
+            background: #e9ecef;
+        }
+
+        .payment-option.selected {
+            background: #e7f3ff;
+            border-color: #667eea;
+        }
+
+        .payment-option input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .payment-label {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .payment-label strong {
+            display: block;
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .payment-label small {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .delivery-charge {
+            color: #10ac84;
+            font-weight: bold;
         }
 
         .product-name {
@@ -364,10 +487,6 @@
                 font-size: 11px;
             }
 
-            .product-image img {
-                border-radius: 8px;
-            }
-
             .product-name {
                 font-size: 0.9em;
                 min-height: 35px;
@@ -456,10 +575,6 @@
                 height: 120px;
             }
 
-            .product-image img {
-                border-radius: 8px;
-            }
-
             .product-name {
                 font-size: 0.85em;
             }
@@ -513,9 +628,6 @@
     </div>
 
     <script>
-        // GitHub Repository URL for images
-        const IMAGE_BASE_URL = 'https://raw.githubusercontent.com/Amilaeduhelp/Trendora1212/main/';
-        
         const products = [
             {id: 1, name: "අලංකාර වතුර බෝතලය Premium", price: 1850, image: "item1.jpg"},
             {id: 2, name: "Designer අත් බෑගය", price: 2150, image: "item2.jpg"},
@@ -576,10 +688,7 @@
             grid.innerHTML = products.map(product => `
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="${IMAGE_BASE_URL}${product.image}" 
-                             alt="${product.name}"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <span class="placeholder">${product.image}</span>
+                        <span>${product.image}</span>
                     </div>
                     <div class="product-name">${product.name}</div>
                     <div class="product-price">රු. ${product.price.toFixed(2)}</div>
@@ -630,10 +739,12 @@
 
         function displayCart() {
             const cartItems = document.getElementById('cartItems');
+            const paymentSection = document.getElementById('paymentSection');
             const cartSummary = document.getElementById('cartSummary');
 
             if (cart.length === 0) {
                 cartItems.innerHTML = '<div class="empty-cart">🛒 Cart එක හිස්ය</div>';
+                paymentSection.innerHTML = '';
                 cartSummary.innerHTML = '';
                 return;
             }
@@ -656,9 +767,34 @@
                 </div>
             `).join('');
 
+            // Payment Method Selection
+            paymentSection.innerHTML = `
+                <div class="payment-section">
+                    <div class="payment-title">💳 ගෙවීමේ ක්‍රමය තෝරන්න</div>
+                    <div class="payment-options">
+                        <div class="payment-option ${selectedPaymentMethod === 'cod' ? 'selected' : ''}" onclick="selectPayment('cod')">
+                            <input type="radio" name="payment" value="cod" ${selectedPaymentMethod === 'cod' ? 'checked' : ''}>
+                            <div class="payment-label">
+                                <strong>🚚 Cash on Delivery (COD)</strong>
+                                <small>ගෙවල් හරහා ගෙවීම - <span class="delivery-charge">Delivery Charge: රු. 400.00</span></small>
+                            </div>
+                        </div>
+                        <div class="payment-option ${selectedPaymentMethod === 'bank' ? 'selected' : ''}" onclick="selectPayment('bank')">
+                            <input type="radio" name="payment" value="bank" ${selectedPaymentMethod === 'bank' ? 'checked' : ''}>
+                            <div class="payment-label">
+                                <strong>🏦 Bank Transfer</strong>
+                                <small>බැංකු මාරු කිරීම - <span class="delivery-charge">Service Charge: රු. 375.00</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const discount = subtotal * 0.05;
-            const total = subtotal - discount;
+            const deliveryCharge = selectedPaymentMethod === 'cod' ? 400 : 375;
+            const paymentMethodName = selectedPaymentMethod === 'cod' ? 'COD Delivery Charge' : 'Bank Transfer Service Charge';
+            const total = subtotal - discount + deliveryCharge;
 
             cartSummary.innerHTML = `
                 <div class="summary-row">
@@ -669,6 +805,10 @@
                     <span>Discount (5%):</span>
                     <span style="color: #10ac84;">- රු. ${discount.toFixed(2)}</span>
                 </div>
+                <div class="summary-row">
+                    <span>${paymentMethodName}:</span>
+                    <span style="color: #ff6b6b;">+ රු. ${deliveryCharge.toFixed(2)}</span>
+                </div>
                 <div class="summary-row total">
                     <span>Total:</span>
                     <span>රු. ${total.toFixed(2)}</span>
@@ -677,6 +817,11 @@
                     📱 Copy & Send via WhatsApp
                 </button>
             `;
+        }
+
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            displayCart();
         }
 
         function toggleCart() {
@@ -692,24 +837,32 @@
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const discount = subtotal * 0.05;
-            const total = subtotal - discount;
+            const deliveryCharge = selectedPaymentMethod === 'cod' ? 400 : 375;
+            const paymentMethodName = selectedPaymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Bank Transfer';
+            const chargeLabel = selectedPaymentMethod === 'cod' ? 'COD Delivery Charge' : 'Bank Transfer Service Charge';
+            const total = subtotal - discount + deliveryCharge;
 
-            let message = '🛍️ *TRENDORA1212 - Bill*\n\n';
+            let message = '🛍️ *TRENDORA1212 - Order Bill*\n\n';
             message += '━━━━━━━━━━━━━━━━━━━━\n\n';
+            message += '*📦 ORDERED ITEMS:*\n\n';
             
             cart.forEach(item => {
-                message += `📦 *${item.name}*\n`;
-                message += `   Qty: ${item.quantity} × රු.${item.price.toFixed(2)}\n`;
-                message += `   Total: රු.${(item.price * item.quantity).toFixed(2)}\n\n`;
+                message += `• *${item.name}*\n`;
+                message += `  Qty: ${item.quantity} × රු.${item.price.toFixed(2)}\n`;
+                message += `  Total: රු.${(item.price * item.quantity).toFixed(2)}\n\n`;
             });
 
             message += '━━━━━━━━━━━━━━━━━━━━\n\n';
+            message += '*💰 BILL SUMMARY:*\n\n';
             message += `Subtotal: රු.${subtotal.toFixed(2)}\n`;
             message += `Discount (5%): -රු.${discount.toFixed(2)}\n`;
+            message += `${chargeLabel}: +රු.${deliveryCharge.toFixed(2)}\n\n`;
             message += `*Grand Total: රු.${total.toFixed(2)}*\n\n`;
-            message += '━━━━━━━━━━━━━━━━━━━━\n';
-            message += 'Thank you for shopping! 🙏\n';
-            message += 'TRENDORA1212';
+            message += '━━━━━━━━━━━━━━━━━━━━\n\n';
+            message += `*💳 Payment Method:* ${paymentMethodName}\n\n`;
+            message += '━━━━━━━━━━━━━━━━━━━━\n\n';
+            message += 'Thank you for shopping with us! 🙏\n';
+            message += '*TRENDORA1212*';
 
             const whatsappNumber = '94705572284';
             const encodedMessage = encodeURIComponent(message);
