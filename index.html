@@ -282,7 +282,6 @@
             color: #667eea;
         }
 
-        .generate-bill-btn,
         .whatsapp-btn {
             width: 100%;
             color: white;
@@ -293,27 +292,14 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-        }
-
-        .generate-bill-btn {
-            background: #10ac84;
-            margin-top: 20px;
-        }
-
-        .generate-bill-btn:hover {
-            background: #0e9870;
-        }
-
-        .whatsapp-btn {
             background: #25D366;
-            margin-top: 15px;
+            margin-top: 20px;
         }
 
         .whatsapp-btn:hover {
             background: #20BA5A;
         }
 
-        .generate-bill-btn:active,
         .whatsapp-btn:active {
             transform: scale(0.98);
         }
@@ -425,7 +411,6 @@
                 font-size: 1.1em;
             }
 
-            .generate-bill-btn,
             .whatsapp-btn {
                 padding: 12px;
                 font-size: 1em;
@@ -472,7 +457,7 @@
                 top: 0;
                 width: 100%;
             }
-            .close-btn, .quantity-controls, .remove-btn, .generate-bill-btn, .whatsapp-btn {
+            .close-btn, .quantity-controls, .remove-btn, .whatsapp-btn {
                 display: none !important;
             }
         }
@@ -657,11 +642,8 @@
                     <span>Total:</span>
                     <span>රු. ${total.toFixed(2)}</span>
                 </div>
-                <button class="generate-bill-btn" onclick="generateBill()">
-                    📄 Bill Generate කරන්න
-                </button>
                 <button class="whatsapp-btn" onclick="sendViaWhatsApp()">
-                    📱 Copy Bill & Send via WhatsApp
+                    📱 Copy & Send via WhatsApp
                 </button>
             `;
         }
@@ -669,10 +651,6 @@
         function toggleCart() {
             const modal = document.getElementById('cartModal');
             modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function generateBill() {
-            window.print();
         }
 
         function sendViaWhatsApp() {
