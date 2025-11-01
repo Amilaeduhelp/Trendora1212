@@ -73,12 +73,22 @@
         .form-btn.cancel:hover {background: #ee5a6f;}
         .toast {position: fixed; bottom: 30px; right: 30px; background: #667eea; color: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 3000; animation: slideIn 0.3s ease-out; font-weight: bold;}
         @keyframes slideIn {from {transform: translateX(400px); opacity: 0;} to {transform: translateX(0); opacity: 1;}}
+        footer {background: white; padding: 30px 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-top: 30px; text-align: center;}
+        .footer-content {max-width: 600px; margin: 0 auto;}
+        .footer-logo {font-size: 1.5em; font-weight: bold; color: #667eea; margin-bottom: 20px; letter-spacing: 2px;}
+        .footer-info {display: flex; flex-direction: column; gap: 15px; color: #333; font-size: 1em;}
+        .footer-item {display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; transition: all 0.3s;}
+        .footer-item:hover {background: #e9ecef; transform: translateY(-2px);}
+        .footer-icon {font-size: 1.3em;}
         @media screen and (max-width: 768px) {
             .products-grid {grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;}
             .product-card {padding: 15px;}
             .product-image {height: 140px;}
             .share-btn, .add-to-cart-btn {padding: 8px; font-size: 0.85em;}
             .toast {bottom: 20px; right: 20px; left: 20px; text-align: center;}
+            footer {padding: 20px 15px;}
+            .footer-logo {font-size: 1.3em;}
+            .footer-info {font-size: 0.9em;}
         }
     </style>
 </head>
@@ -127,6 +137,21 @@
                 </form>
             </div>
         </div>
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">🛍️ TRENDORA1212</div>
+                <div class="footer-info">
+                    <div class="footer-item">
+                        <span class="footer-icon">📍</span>
+                        <span><strong>703/5, Galle Road, Kalutara, Sri Lanka</strong></span>
+                    </div>
+                    <div class="footer-item">
+                        <span class="footer-icon">📱</span>
+                        <span><strong>+94 70 557 2284</strong></span>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
     <script>
